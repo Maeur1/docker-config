@@ -1,0 +1,94 @@
+version: '3.4'
+services:
+
+        #vpn:
+          # container_name: vpn
+    # image: dperson/openvpn-client:latest
+    # cap_add:
+            #- net_admin # required to modify network interfaces
+        # restart: unless-stopped
+    #volumes:
+            #- /dev/net:/dev/net:z # tun device
+        #- ${CONFIG_ROOT}/vpn:/vpn # OpenVPN configuration
+        #security_opt:
+            #- label:disable
+        #ports:
+            # - 8112:8112 # port for deluge web UI to be reachable from local network
+        #    command: '-f "" -r 192.168.1.0/24' # enable firewall and route local network traffic
+
+  jackett:
+    container_name: jackett
+    image: linuxserver/jackett:latest
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - PUID=${PUID} # default user id, defined in .env
+      - PGID=${PGID} # default group id, defined in .env
+      - TZ=${TZ} # timezone, defined in .env
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${MEDIA_ROOT}/downloads/torrent-blackhole:/downloads # place where to put .torrent files for manual download
+      - ${CONFIG_ROOT}/jackett:/config # config files
+
+  sonarr:
+    container_name: sonarr
+    image: linuxserver/sonarr:latest
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - PUID=${PUID} # default user id, defined in .env
+      - PGID=${PGID} # default group id, defined in .env
+      - TZ=${TZ} # timezone, defined in .env
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${CONFIG_ROOT}/sonarr:/config # config files
+      - ${MEDIA_ROOT}/complete/tv:/tv # tv shows folder
+      - ${MEDIA_ROOT}/downloads:/downloads # download folder
+
+  radarr:
+    container_name: radarr
+    image: linuxserver/radarr:latest
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - PUID=${PUID} # default user id, defined in .env
+      - PGID=${PGID} # default group id, defined in .env
+      - TZ=${TZ} # timezone, defined in .env
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${CONFIG_ROOT}/radarr:/config # config files
+      - ${MEDIA_ROOT}/complete/movies:/movies # movies folder
+      - ${MEDIA_ROOT}/downloads:/downloads # download folder
+
+  bazarr:
+    container_name: bazarr
+    image: linuxserver/bazarr:latest
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ${CONFIG_ROOT}/bazarr:/config
+      - ${MEDIA_ROOT}/complete/movies:/movies
+      - ${MEDIA_ROOT}/complete/tv:/tv
+    environment:
+      - UID=${PUID}
+      - GIP=${PGID}
+      - TZ=${TZ}
+
+  jellyfin:
+    restart: unless-stopped
+    container_name: jellyfin
+    image: jellyfin/jellyfin:latest
+    network_mode: host
+    volumes:
+      - ${CONFIG_ROOT}/jellyfin:/config
+      - /tmp/cache:/config/cache # temp transcoded files
+      - /tmp/transcodes:/config/data/transcodes
+      - ${MEDIA_ROOT}/complete:/media # media library
+    devices:
+      - /dev/dri/renderD128:/dev/dri/renderD128
+      - /dev/dri/card0:/dev/dri/card0
+    environment:
+      - UID=${PUID}
+      - GID=${PGID}
+      - TZ=${TZ}
+    privileged: true
