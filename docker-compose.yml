@@ -77,3 +77,21 @@ services:
       - GID=${PGID}
       - TZ=${TZ}
     privileged: true
+
+  plex:
+    restart: unless-stopped
+    container_name: plex
+    image: plexinc/pms-docker:public
+    network_mode: host
+    volumes:
+      - ${MEDIA_ROOT}/complete/movies:/data/movies
+      - ${MEDIA_ROOT}/complete/tv:/data/tv
+      - ${CONFIG_ROOT}/plex:/config
+    environment:
+      - UID=${PUID}
+      - GIP=${PGID}
+      - TZ=${TZ}
+      - PLEX_CLAIM="claim-vkxenUw3EnQ9mpyyH4oJ"
+    devices:
+      - /dev/dri/renderD128:/dev/dri/renderD128
+      - /dev/dri/card0:/dev/dri/card0
