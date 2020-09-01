@@ -1,5 +1,43 @@
-version: '3.4'
+version: '3.8'
 services:
+
+  ngnix-manager:
+    container_name: ngnix-proxy-manager
+    image: jc21/nginx-proxy-manager:latest
+    restart: always
+    ports:
+      - "90:80"
+      - "444:443"
+      - "82:81"
+    volumes:
+      - ./nginx-proxy-manager-config.json:/app/config/production.json
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
+    depends_on:
+      - mysql
+ 
+  wordpress:
+    container_name: wordpress
+    image: wordpress
+    links:
+      - mysql
+    environment:
+      - WORDPRESS_DB_PASSWORD=${WORDPRESS_DB_PASSWORD}
+    ports:
+      - "8080:80"
+
+  mysql:
+    container_name: mysql
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    volumes:
+      - ${DATABASE_ROOT}:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=${WORDPRESS_DB_PASSWORD}
+      - MYSQL_DATABASE=${WORDPRESS_DB_NAME}
+    ports:
+      - "3306:3306"
+
 
   jackett:
     container_name: jackett
@@ -62,7 +100,7 @@ services:
   jellyfin:
     restart: unless-stopped
     container_name: jellyfin
-    image: jellyfin/jellyfin:unstable
+    image: jellyfin/jellyfin:20200805.4-unstable
     network_mode: host
     volumes:
       - ${CONFIG_ROOT}/jellyfin:/config
