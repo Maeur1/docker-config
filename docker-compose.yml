@@ -19,15 +19,17 @@ services:
   wordpress:
     container_name: wordpress
     image: wordpress
+    restart: unless-stopped
     links:
       - mysql
     environment:
       - WORDPRESS_DB_PASSWORD=${WORDPRESS_DB_PASSWORD}
     ports:
-      - "8080:80"
+      - "8888:80"
 
   mysql:
     container_name: mysql
+    restart: always
     image: mysql
     command: --default-authentication-plugin=mysql_native_password
     volumes:
@@ -98,7 +100,7 @@ services:
       - TZ=${TZ}
 
   jellyfin:
-    restart: unless-stopped
+    restart: always
     container_name: jellyfin
     image: jellyfin/jellyfin:20200805.4-unstable
     network_mode: host
@@ -117,7 +119,7 @@ services:
     privileged: true
 
   plex:
-    restart: unless-stopped
+    restart: always
     container_name: plex
     image: plexinc/pms-docker:public
     network_mode: host
