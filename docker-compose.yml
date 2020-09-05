@@ -102,7 +102,7 @@ services:
   jellyfin:
     restart: always
     container_name: jellyfin
-    image: jellyfin/jellyfin:20200805.4-unstable
+    image: jellyfin/jellyfin:unstable
     network_mode: host
     volumes:
       - ${CONFIG_ROOT}/jellyfin:/config
