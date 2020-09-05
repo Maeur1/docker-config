@@ -11,8 +11,8 @@ services:
       - "81:81"
     volumes:
       - ./nginx-proxy-manager-config.json:/app/config/production.json
-      - ./data:/data
-      - ./letsencrypt:/etc/letsencrypt
+      - ${NGNIX_PROXY_MANAGER_DATA}/data:/data
+      - ${NGNIX_PROXY_MANAGER_DATA}/letsencrypt:/etc/letsencrypt
     depends_on:
       - mysql
  
